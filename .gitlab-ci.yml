@@ -8,4 +8,4 @@ test_pso:
   script:
     - python pso.py
   tags:
-    - tmsquill
+    - gitlab-org 
