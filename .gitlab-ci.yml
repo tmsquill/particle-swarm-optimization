@@ -1,0 +1,11 @@
+image: "python:buster"
+
+stages:
+  - test
+
+test_pso:
+  stage: test
+  script:
+    - python pso.py
+  tags:
+    - tmsquill
