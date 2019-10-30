@@ -14,7 +14,6 @@ def cost_function(position):
 
 
 class Particle:
-
     def __init__(self, parameters):
 
         # The position of the particle.
@@ -97,8 +96,7 @@ class Particle:
                 self.position[i] = bounds[i][0]
 
 
-class Swarm():
-
+class Swarm:
     def __init__(self, x0, bounds, particle_count, max_iter):
 
         global num_dimensions
@@ -131,8 +129,8 @@ class Swarm():
                 particle.update_position(bounds)
 
         # Print results.
-        print(f'Best Position -> {self.best.position}')
-        print(f'Best Value    -> {self.best.value}')
+        print(f"Best Position -> {self.best.position}")
+        print(f"Best Value    -> {self.best.value}")
 
 
 initial_position = [5, 5, 5, 5]
