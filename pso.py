@@ -14,10 +14,15 @@ def cost_function(position):
 
 
 class Particle:
+
+    """
+    Represents an individual particle in the search space.
+    """
+
     def __init__(self, parameters):
 
         # The position of the particle.
-        self.position = [parameter for parameter in parameters]
+        self.position = parameters
 
         # The velocity of the particle.
         self.velocity = [random.uniform(-1, 1) for _ in range(len(parameters))]
@@ -30,6 +35,14 @@ class Particle:
 
         # The performance value of the particle.
         self.value = -1
+
+    def __repr__(self):
+
+        return f"Position: {self.position} Value: {self.value}"
+
+    def __str__(self):
+
+        return repr(self)
 
     def evaluate(self, cost_func):
 
@@ -53,13 +66,13 @@ class Particle:
         """
 
         # Cognitive constant. Used for calculating cognitive force vector.
-        c1 = 1
+        cog_force = 1
 
         # Social constant. Used for calculating social force vector.
-        c2 = 2
+        soc_force = 2
 
         # Constant inertia weight (how much to weigh the previous velocity).
-        w = 0.5
+        inertia = 0.5
 
         for i in range(len(self.position)):
 
@@ -67,13 +80,16 @@ class Particle:
             r2 = random.random()
 
             # Calculate cognitive velocity.
-            vel_cognitive = c1 * r1 * (self.pos_best[i] - self.position[i])
+            vel_cognitive = cog_force * r1 * (self.pos_best[i] - self.position[i])
 
             # Calculate social velocity.
-            vel_social = c2 * r2 * (pos_best_g[i] - self.position[i])
+            vel_social = soc_force * r2 * (pos_best_g[i] - self.position[i])
 
-            # Update velocity of the particle.
-            self.velocity[i] = w * self.velocity[i] + vel_cognitive + vel_social
+            # Update velocity of the particle. Velocity value is calculated by
+            # adding the sum of the cognitive vector (pointing to personal
+            # best), the social vector (pointing to swarm best) and the current
+            # velocity multiplied by some inertia weight.
+            self.velocity[i] = inertia * self.velocity[i] + vel_cognitive + vel_social
 
     def update_position(self, bounds):
 
@@ -97,20 +113,27 @@ class Particle:
 
 
 class Swarm:
-    def __init__(self, x0, bounds, particle_count, max_iter):
+
+    """
+    Represents a swarm of particles in the search space. Orchestrates the
+    behavior of particles.
+    """
+
+    def __init__(self, initial_position, bounds, particle_count, iters):
 
         global num_dimensions
-        num_dimensions = len(x0)
+        num_dimensions = len(initial_position)
         self.best = None
         self.particle_count = particle_count
-        self.max_iter = max_iter
+        self.bounds = bounds
+        self.iters = iters
 
         # Create the swarm.
-        self.swarm = [Particle(x0) for _ in range(particle_count)]
+        self.swarm = [Particle(initial_position) for _ in range(particle_count)]
 
     def optimize(self, cost_func):
 
-        for _ in range(self.max_iter):
+        for _ in range(self.iters):
 
             # Evaluate fitness for each particle.
             for particle in self.swarm:
@@ -126,16 +149,16 @@ class Swarm:
             for particle in self.swarm:
 
                 particle.update_velocity(self.best.position)
-                particle.update_position(bounds)
+                particle.update_position(self.bounds)
 
-        # Print results.
-        print(f"Best Position -> {self.best.position}")
-        print(f"Best Value    -> {self.best.value}")
-
-
-initial_position = [5, 5, 5, 5]
-bounds = [(-10, 10), (-10, 10), (-10, 10), (-10, 10)]
+        # Print the best-performing particle.
+        print(f"Best Particle -> {self.best}")
 
 # Create the swarm and optimize.
-swarm = Swarm(initial_position, bounds, 15, 300)
+swarm = Swarm(
+    [5, 5, 5, 5],                                 # Position
+    [(-10, 10), (-10, 10), (-10, 10), (-10, 10)], # Bounds
+    15,                                           # Particle Count
+    300                                           # Iterations
+)
 swarm.optimize(cost_function)
